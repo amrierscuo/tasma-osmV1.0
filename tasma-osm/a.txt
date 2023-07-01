@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>Toponymic Atlas of Sardinia and Military Areas</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Marker Cluster CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- Header -->
+<header>
+    <h1>Toponymic Atlas of Sardinia and Military Areas</h1>
+    <p>Upload your GeoJSON file to visualize the data on the map</p>
+    <img src="img/Sardinia-Flag.jpg" alt="Sardinia Flag" id="sardinia-flag">
+</header>
+<section id="controls">
+    <div class="file-upload">
+        <input id="geojson-file" type="file">
+    </div>
+    <button id="remove-geojson">Remove GeoJSON</button>
+    <div class="search-box-container">
+        <label for="search-box"></label>
+        <input id="search-box" type="text" placeholder="Search for a city or area">
+    </div>
+    <button id="hint-button" class="hint-button">Hint</button>
+</section>
+<div id="main-content">
+    <section id="map"></section>
+    <aside id="sidebar">
+        <h2>GeoJSON Layers</h2>
+        <div id="layer-control-panel">
+            <!-- Hint Section -->
+            <div id="hint-section">
+                <p class="hint">Choose the GeoJSON file from the "geojson" project folder that represents the layer. Search for your point of interest by filtering the property first (a second search may be necessary to update the popup).</p>
+            </div>
+            <div id="property-checkboxes"></div>
+        </div>
+    </aside>
+</div>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<!-- Marker Cluster JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
+<!--  Main Javascript! -->
+<script src="main.js"></script>
+</body>
+</html>
+main.js
+// main.js
+/**
+ * Toponymic Atlas of Sardinia and Military Areas
+ *
+ * This script enables users to upload and visualize GeoJSON files on a Leaflet map.
+ * It provides functionality for layer control, property selection/filtering, searching, and popup display.
+
+ ImportantEvent Listeners:
+ 1. File input 'change': Loads GeoJSON files and processes them.
+ 2. Property checkbox 'change': Updates the popup content based on the selected properties.
+ 3. Search box 'input': Filters features based on the search input.
+ 4. Remove GeoJSON button 'click': Clears the map and removes GeoJSON files.
+ 5. Hint button 'click': Toggles the visibility of the hint section.
+ 6. Checkbox 'change' (inside the search box event listener): Updates the popup content based on the selected properties.
+ 7. Checkbox 'change' (inside the loadGeoJSONFile function): Updates the popup content based on the selected properties.
+
+*/
+
+/**
+ * Global Variables
+ *
+ * map: Leaflet map object
+ * markers: Object to store marker clusters for each GeoJSON file
+ * geoJsonData: Object to store the GeoJSON data for each file
+ * propertyStatus: Object to track the status of each property checkbox
+ * allLayers: Array to store all GeoJSON layers and features
+ * selectedProperties: Object to store eventually selected properties for popup display
+ */
+let map;
+let markers = {};
+let geoJsonData = {};
+let propertyStatus = {};
+let allLayers = [];
+let selectedProperties = {};
+
+/**
+ * Layer Names
+ *
+ * Names of the GeoJSON files to be loaded and displayed on the map
+ */
+let layerNames = ['atlante_toponomastico.geojson', 'AreeSpecialiMilitari.geojson'];
+
+/**
+ * Initialize the Leaflet map
+ */
+function initMap() {
+  map = L.map('map').setView([40.1209, 9.0129], 8);
+
+  // Define the tile layers using various tile providers
+
+  // OpenStreetMap tile layer
+  let openStreetMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+  });
+
+  // Mapbox Satellite tile layer
+  let satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.PUTYOURTOKEN', {
+    maxZoom: 19,
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.PUTYOURTOKEN',
+  });
+
+  let mapboxStreetsLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.PUTYOURTOKEN', {
+    maxZoom: 19,
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.PUTYOURTOKEN',
+  });
+
+  let mapboxSatelliteStreetsLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token=pk.PUTYOURTOKEN', {
+    maxZoom: 19,
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.PUTYOURTOKEN',
+  });
+
+  let mapboxOutdoorsLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/{z}/{x}/{y}?access_token=pk.PUTYOURTOKEN', {
+    maxZoom: 19,
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.PUTYOURTOKEN',
+  });
+
+  // Add the tile layers to the map
+  let baseMaps = {
+    'OpenStreetMap': openStreetMapLayer,
+    'Satellite': satelliteLayer,
+    'Mapbox Streets': mapboxStreetsLayer,
+    'Mapbox Satellite Streets': mapboxSatelliteStreetsLayer,
+    'Mapbox Outdoors': mapboxOutdoorsLayer
+  };
+  openStreetMapLayer.addTo(map);
+
+  // Disable the search box initially
+  let searchBox = document.getElementById('search-box');
+  searchBox.disabled = true;
+  searchBox.style.backgroundColor = '#ddd';
+
+  /**
+   * Update the popup content based on the selected properties(This is crucial for popup content)
+   * @param {object} feature - GeoJSON feature
+   * @param {object} layer - Leaflet layer
+   */
+  function updatePopupContent(feature, layer) {
+    let popupContent = '';
+    for (let property in feature.properties) {
+      let checkbox = document.getElementById(property);
+      console.log('Checkbox:', checkbox);
+      if (checkbox && checkbox.checked) {
+        popupContent += property.toUpperCase() + ': ' + feature.properties[property] + '<br>';
+      }
+    }
+    layer.bindPopup(popupContent);
+    console.log('Updated popup content:', popupContent);
+  }
+
+  /**
+   * Event listener for file input change
+   * Loads GeoJSON files and processes them
+   */
+  document.getElementById('geojson-file').addEventListener('change', function() {
+    let files = this.files;
+    for (let i = 0; i < files.length; i++) {
+      let file = files[i];
+      if (layerNames.includes(file.name)) {
+        loadGeoJSONFile(file);
+      }
+    }
+  });
+
+  /**
+   * Load GeoJSON file
+   * @param {File} file - GeoJSON file
+   */
+  function loadGeoJSONFile(file) {
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      geoJsonData[file.name] = JSON.parse(e.target.result);
+      if (markers[file.name]) {
+        markers[file.name].clearLayers();
+      } else {
+        markers[file.name] = L.markerClusterGroup();
+      }
+      let geoJsonLayer = L.geoJSON(geoJsonData[file.name], {
+        onEachFeature: function(feature, layer) {
+          allLayers.push({ feature: feature, layer: layer });
+          let popupContent = '';
+
+          let propertySelectPanel = document.getElementById('property-checkboxes');
+          propertySelectPanel.innerHTML = '';
+
+          if (file.name === layerNames[0]) {
+            for (let property in feature.properties) {
+              let checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.id = property;
+              checkbox.name = property;
+              checkbox.value = property;
+              checkbox.checked = propertyStatus[property] !== false;
+
+              checkbox.addEventListener('change', function() {
+                propertyStatus[property] = this.checked;
+                allLayers.forEach(function(obj) {
+                  updatePopupContent(obj.feature, obj.layer);                 // notice update Pop up!
+                });
+              });
+
+              let label = document.createElement('label');
+              label.htmlFor = property;
+              label.appendChild(document.createTextNode(property));
+
+              propertySelectPanel.appendChild(checkbox);
+              propertySelectPanel.appendChild(label);
+              propertySelectPanel.appendChild(document.createElement('br'));
+
+              if (checkbox.checked) {
+                popupContent += property.toUpperCase() + ': ' + feature.properties[property] + '<br>';
+              }
+            }
+          } else {
+            for (let property in feature.properties) {
+              if (feature.properties.hasOwnProperty(property)) {
+                popupContent += property.toUpperCase() + ': ' + feature.properties[property] + '<br>';
+              }
+            }
+          }
+
+          console.log('Popup content:', popupContent);
+          markers[file.name].addLayer(layer);
+          layer.bindPopup(popupContent);
+          console.log('Popup content after update:', popupContent);
+        }
+      });
+      map.addLayer(markers[file.name]);
+
+      // Enable the search box
+      searchBox.disabled = false;
+      searchBox.style.backgroundColor = '#fff';
+
+      // add a layer control checkbox for this file
+      let layerControlPanel = document.getElementById('layer-control-panel');
+
+      let checkboxLabel = document.createElement('label');
+      checkboxLabel.htmlFor = 'layer-control-' + file.name;
+      checkboxLabel.style.display = 'block';
+      checkboxLabel.style.textAlign = 'left';
+
+      let filenameText = document.createTextNode(file.name);
+      checkboxLabel.appendChild(filenameText);
+
+      let checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = 'layer-control-' + file.name;
+      checkbox.checked = true;
+      checkbox.addEventListener('change', function() {
+        if (this.checked) {
+          map.addLayer(markers[file.name]);
+        } else {
+          map.removeLayer(markers[file.name]);
+        }
+      });
+
+      layerControlPanel.appendChild(checkboxLabel);
+      layerControlPanel.appendChild(checkbox);
+      layerControlPanel.appendChild(document.createElement('br'));
+    };
+    reader.readAsText(file);
+  }
+
+  /**
+   * Event listener for search box input
+   * Filters features based on search input
+   */
+  searchBox.addEventListener('input', function() {
+    let searchString = this.value.toLowerCase();
+    let matchedFeatures = {};
+
+    for (let fileName in geoJsonData) {
+      matchedFeatures[fileName] = [];
+      geoJsonData[fileName].features.forEach(function(feature) {
+        for (let property in feature.properties) {
+          if (feature.properties.hasOwnProperty(property) && typeof feature.properties[property] === 'string' && feature.properties[property].toLowerCase().includes(searchString)) {
+            matchedFeatures[fileName].push(feature);
+            break;
+          }
+        }
+      });
+    }
+
+    let propertySelectPanel = document.getElementById('property-checkboxes');
+    propertySelectPanel.innerHTML = '';
+
+    for (let fileName in markers) {
+      if (markers[fileName]) {
+        markers[fileName].clearLayers();
+        markers[fileName] = L.markerClusterGroup();
+        let geoJsonLayer = L.geoJSON(matchedFeatures[fileName], {
+          onEachFeature: function(feature, layer) {
+            let popupContent = '';
+            if (fileName === layerNames[0]) {
+              for (let property in feature.properties) {
+                let checkbox = document.getElementById(property);
+                if (!checkbox) {
+                  checkbox = document.createElement('input');
+                  checkbox.type = 'checkbox';
+                  checkbox.id = property;
+                  checkbox.name = property;
+                  checkbox.value = property;
+                  checkbox.checked = propertyStatus[property] !== false;
+
+                  checkbox.addEventListener('change', function() {
+                    propertyStatus[property] = this.checked;
+                    allLayers.forEach(function(obj) {
+                      updatePopupContent(obj.feature, obj.layer);                   // notice update Pop up!
+                    });
+                  });
+
+                  let label = document.createElement('label');
+                  label.htmlFor = property;
+                  label.appendChild(document.createTextNode(property));
+
+                  propertySelectPanel.appendChild(checkbox);
+                  propertySelectPanel.appendChild(label);
+                  propertySelectPanel.appendChild(document.createElement('br'));
+                }
+
+                if (checkbox.checked) {
+                  popupContent += property.toUpperCase() + ': ' + feature.properties[property] + '<br>';
+                }
+              }
+            } else {
+              for (let property in feature.properties) {
+                if (feature.properties.hasOwnProperty(property)) {
+                  popupContent += property.toUpperCase() + ': ' + feature.properties[property] + '<br>';
+                }
+              }
+            }
+
+            console.log('Popup content:', popupContent);
+            markers[fileName].addLayer(layer);
+            layer.bindPopup(popupContent);
+            console.log('Popup content after update:', popupContent);
+          }
+        });
+        map.addLayer(markers[fileName]);
+      }
+    }
+  });
+
+  /**
+   * Event listener for remove GeoJSON button
+   * Clears the map and removes GeoJSON files
+   */
+  document.getElementById('remove-geojson').addEventListener('click', function() {
+    for (let fileName in markers) {
+      if (markers[fileName]) {
+        markers[fileName].clearLayers();
+        markers[fileName] = null;
+        delete geoJsonData[fileName];
+
+        // remove the corresponding layer control checkbox
+        let checkbox = document.getElementById('layer-control-' + fileName);
+        checkbox.parentNode.removeChild(checkbox);
+        let label = document.querySelector('label[for="layer-control-' + fileName + '"]');
+        label.parentNode.removeChild(label);
+        // reset the property panel as well when removing the GeoJSON
+        let propertySelectPanel = document.getElementById('property-checkboxes');
+        propertySelectPanel.innerHTML = '';
+      }
+    }
+
+    // Disable the search box
+    searchBox.disabled = true;
+    searchBox.style.backgroundColor = '#ddd';
+
+    location.reload();
+  });
+
+  // Add layer control
+  let layerControl = L.control.layers(baseMaps, {}).addTo(map);
+
+  // Set default layer as OpenStreetMap
+  map.addLayer(openStreetMapLayer);
+}
+
+// Execute the initMap function when the window loads
+window.onload = initMap;
+
+/**
+ * Event listener for the hint button
+ * Toggles the visibility of the hint section
+ */
+let hintButton = document.getElementById('hint-button');
+let hintSection = document.getElementById('hint-section');
+
+hintButton.addEventListener('click', function() {
+  hintSection.classList.toggle('show-hint');
+});
+styles.css
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+header {
+    padding: 20px;
+    background-color: #003399;
+    color: white;
+    position: relative;
+}
+header h1 {
+    margin: 0;
+}
+#controls {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px 0;
+    background-color: #cccccc;
+}
+#controls input,
+#controls button {
+    padding: 10px;
+    font-size: 1em;
+}
+#main-content {
+    display: flex;
+    height: 75%;
+}
+#map {
+    flex-grow: 1;
+    margin: 20px;
+    z-index: 1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+#sidebar {
+    width: 250px;
+    background-color: #ccc;
+    position: relative;
+    overflow: auto; 
+    padding: 40px; 
+}
+#layer-control-panel {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    position: relative;
+}
+#layer-control-panel h2 {
+    margin: 0;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+#search-box:disabled {
+    background-color: #ddd;
+}
+
+#search-box:enabled {
+    background-color: #fff;
+}
+#sardinia-flag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    max-width: 100px;
+}
+.hint-button {
+  background-color: #f9ca24;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.hint-button:hover {
+  background-color: #f0932b;
+}
+
+.hint {
+  font-style: italic;
+  font-size: 8px;
+  color: violet;
+  display: none;
+  margin-top: 10px;
+  transition: opacity 0.3s ease;
+}
+
+.show-hint .hint {
+  display: block;
+  opacity: 1;
+}
+
+.file-upload {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #f9ca24;
+  color: white;
+  border-radius: 5px;
+}
+
+.custom-file-upload:hover {
+  background-color: #f0932b;
+}

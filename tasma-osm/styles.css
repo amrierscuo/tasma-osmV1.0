@@ -1,0 +1,119 @@
+/* styles.css */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+header {
+    padding: 20px;
+    background-color: #003399;
+    color: white;
+    position: relative;
+}
+header h1 {
+    margin: 0;
+}
+#controls {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px 0;
+    background-color: #cccccc;
+}
+#controls input,
+#controls button {
+    padding: 10px;
+    font-size: 1em;
+}
+#main-content {
+    display: flex;
+    height: 75%;
+}
+#map {
+    flex-grow: 1;
+    margin: 20px;
+    z-index: 1;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+#sidebar {
+    width: 250px;
+    background-color: #ccc;
+    position: relative;
+    overflow: auto; 
+    padding: 40px; 
+}
+#layer-control-panel {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    position: relative;
+}
+#layer-control-panel h2 {
+    margin: 0;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+#search-box:disabled {
+    background-color: #ddd;
+}
+
+#search-box:enabled {
+    background-color: #fff;
+}
+#sardinia-flag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    max-width: 100px;
+}
+.hint-button {
+  background-color: #f9ca24;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.hint-button:hover {
+  background-color: #f0932b;
+}
+
+.hint {
+  font-style: italic;
+  font-size: 8px;
+  color: violet;
+  display: none;
+  margin-top: 10px;
+  transition: opacity 0.3s ease;
+}
+
+.show-hint .hint {
+  display: block;
+  opacity: 1;
+}
+
+.file-upload {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+  background-color: #f9ca24;
+  color: white;
+  border-radius: 5px;
+}
+
+.custom-file-upload:hover {
+  background-color: #f0932b;
+}

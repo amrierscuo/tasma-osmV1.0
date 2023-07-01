@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+    <title>Toponymic Atlas of Sardinia and Military Areas</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <!-- Marker Cluster CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- Header -->
+<header>
+    <h1>Toponymic Atlas of Sardinia and Military Areas</h1>
+    <p>Upload your GeoJSON file to visualize the data on the map</p>
+    <img src="img/Sardinia-Flag.jpg" alt="Sardinia Flag" id="sardinia-flag">
+</header>
+<section id="controls">
+    <div class="file-upload">
+        <input id="geojson-file" type="file">
+    </div>
+    <button id="remove-geojson">Remove GeoJSON</button>
+    <div class="search-box-container">
+        <label for="search-box"></label>
+        <input id="search-box" type="text" placeholder="Search for a city or area">
+    </div>
+    <button id="hint-button" class="hint-button">Hint</button>
+</section>
+<div id="main-content">
+    <section id="map"></section>
+    <aside id="sidebar">
+        <h2>GeoJSON Layers</h2>
+        <div id="layer-control-panel">
+            <!-- Hint Section -->
+            <div id="hint-section">
+                <p class="hint">Choose the GeoJSON file from the "geojson" project folder that represents the layer. Search for your point of interest by filtering the property first (a second search may be necessary to update the popup).</p>
+            </div>
+            <div id="property-checkboxes"></div>
+        </div>
+    </aside>
+</div>
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<!-- Marker Cluster JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
+<!--  Main Javascript! -->
+<script src="main.js"></script>
+</body>
+</html>

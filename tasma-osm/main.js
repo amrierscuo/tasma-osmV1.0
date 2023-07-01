@@ -1,31 +1,3 @@
-// main.js
-/**
- * Toponymic Atlas of Sardinia and Military Areas
- *
- * This script enables users to upload and visualize GeoJSON files on a Leaflet map.
- * It provides functionality for layer control, property selection/filtering, searching, and popup display.
-
- ImportantEvent Listeners:
- 1. File input 'change': Loads GeoJSON files and processes them.
- 2. Property checkbox 'change': Updates the popup content based on the selected properties.
- 3. Search box 'input': Filters features based on the search input.
- 4. Remove GeoJSON button 'click': Clears the map and removes GeoJSON files.
- 5. Hint button 'click': Toggles the visibility of the hint section.
- 6. Checkbox 'change' (inside the search box event listener): Updates the popup content based on the selected properties.
- 7. Checkbox 'change' (inside the loadGeoJSONFile function): Updates the popup content based on the selected properties.
-
-*/
-
-/**
- * Global Variables
- *
- * map: Leaflet map object
- * markers: Object to store marker clusters for each GeoJSON file
- * geoJsonData: Object to store the GeoJSON data for each file
- * propertyStatus: Object to track the status of each property checkbox
- * allLayers: Array to store all GeoJSON layers and features
- * selectedProperties: Object to store eventually selected properties for popup display
- */
 let map;
 let markers = {};
 let geoJsonData = {};
@@ -33,56 +5,43 @@ let propertyStatus = {};
 let allLayers = [];
 let selectedProperties = {};
 
-/**
- * Layer Names
- *
- * Names of the GeoJSON files to be loaded and displayed on the map
- */
 let layerNames = ['atlante_toponomastico.geojson', 'AreeSpecialiMilitari.geojson'];
 
-/**
- * Initialize the Leaflet map
- */
 function initMap() {
   map = L.map('map').setView([40.1209, 9.0129], 8);
 
-  // Define the tile layers using various tile providers
-
-  // OpenStreetMap tile layer
   let openStreetMapLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
   });
 
-  // Mapbox Satellite tile layer
   let satelliteLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZ3lzZ2hvc3Q5OSIsImEiOiJjbGl1OHJ4MWowMG5sM21zNmY0dTZqdm15In0.iBd4rB6y3hFJlJ4GHSv0HQ', {
     maxZoom: 19,
     tileSize: 512,
     zoomOffset: -1,
-    accessToken: 'pk.PUTYOURTOKEN',
+    accessToken: 'pk.eyJ1IjoiZ3lzZ2hvc3Q5OSIsImEiOiJjbGl1OHJ4MWowMG5sM21zNmY0dTZqdm15In0.iBd4rB6y3hFJlJ4GHSv0HQ',
   });
 
   let mapboxStreetsLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZ3lzZ2hvc3Q5OSIsImEiOiJjbGl1OHJ4MWowMG5sM21zNmY0dTZqdm15In0.iBd4rB6y3hFJlJ4GHSv0HQ', {
     maxZoom: 19,
     tileSize: 512,
     zoomOffset: -1,
-    accessToken: 'pk.PUTYOURTOKEN',
+    accessToken: 'pk.eyJ1IjoiZ3lzZ2hvc3Q5OSIsImEiOiJjbGl1OHJ4MWowMG5sM21zNmY0dTZqdm15In0.iBd4rB6y3hFJlJ4GHSv0HQ',
   });
 
   let mapboxSatelliteStreetsLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZ3lzZ2hvc3Q5OSIsImEiOiJjbGl1OHJ4MWowMG5sM21zNmY0dTZqdm15In0.iBd4rB6y3hFJlJ4GHSv0HQ', {
     maxZoom: 19,
     tileSize: 512,
     zoomOffset: -1,
-    accessToken: 'pk.PUTYOURTOKEN',
+    accessToken: 'pk.eyJ1IjoiZ3lzZ2hvc3Q5OSIsImEiOiJjbGl1OHJ4MWowMG5sM21zNmY0dTZqdm15In0.iBd4rB6y3hFJlJ4GHSv0HQ',
   });
 
   let mapboxOutdoorsLayer = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZ3lzZ2hvc3Q5OSIsImEiOiJjbGl1OHJ4MWowMG5sM21zNmY0dTZqdm15In0.iBd4rB6y3hFJlJ4GHSv0HQ', {
     maxZoom: 19,
     tileSize: 512,
     zoomOffset: -1,
-    accessToken: 'pk.PUTYOURTOKEN',
+    accessToken: 'pk.eyJ1IjoiZ3lzZ2hvc3Q5OSIsImEiOiJjbGl1OHJ4MWowMG5sM21zNmY0dTZqdm15In0.iBd4rB6y3hFJlJ4GHSv0HQ',
   });
 
-  // Add the tile layers to the map
   let baseMaps = {
     'OpenStreetMap': openStreetMapLayer,
     'Satellite': satelliteLayer,
@@ -92,33 +51,54 @@ function initMap() {
   };
   openStreetMapLayer.addTo(map);
 
-  // Disable the search box initially
   let searchBox = document.getElementById('search-box');
   searchBox.disabled = true;
   searchBox.style.backgroundColor = '#ddd';
 
-  /**
-   * Update the popup content based on the selected properties(This is crucial for popup content)
-   * @param {object} feature - GeoJSON feature
-   * @param {object} layer - Leaflet layer
-   */
-  function updatePopupContent(feature, layer) {
-    let popupContent = '';
-    for (let property in feature.properties) {
-      let checkbox = document.getElementById(property);
-      console.log('Checkbox:', checkbox);
-      if (checkbox && checkbox.checked) {
-        popupContent += property.toUpperCase() + ': ' + feature.properties[property] + '<br>';
+function updatePopupContent(feature, layer) {
+  let popupContent = '';
+  let popupContent1 = '';
+  let additionalPopupContent = '';
+
+  let propertyCount = 0; // Contatore per limitare le prime 2 properties nel popupContent1
+
+  for (let property in feature.properties) {
+    let checkbox = document.getElementById(property);
+    if (checkbox && checkbox.checked) {
+      popupContent += property.toUpperCase() + ': ' + feature.properties[property] + '<br>';
+
+      if (propertyCount < 2) {
+        popupContent1 += property.toUpperCase() + ': ' + feature.properties[property] + '<br>';
+        propertyCount++;
+      } else {
+        additionalPopupContent += property.toUpperCase() + ': ' + feature.properties[property] + '<br><br>';
       }
     }
-    layer.bindPopup(popupContent);
-    console.log('Updated popup content:', popupContent);
   }
 
-  /**
-   * Event listener for file input change
-   * Loads GeoJSON files and processes them
-   */
+  if (popupContent1 !== '') {
+    popupContent1 += '<br><em>For more details, check the popup in the right.</em>'; // Aggiunta del commento nel popupContent1
+  }
+
+  layer.bindPopup(popupContent1);
+
+layer.on('click', function (e) {
+  let additionalPopupDiv = document.getElementById('additional-popup');
+  additionalPopupDiv.innerHTML = ''; // Pulisci il contenuto precedente
+  let additionalPopupContentDiv = document.createElement('div');
+  additionalPopupContentDiv.innerHTML = additionalPopupContent; // Aggiungi il contenuto al div creato dinamicamente
+  additionalPopupDiv.appendChild(additionalPopupContentDiv);
+  layer.openPopup();
+});
+
+
+}
+
+
+
+
+
+
   document.getElementById('geojson-file').addEventListener('change', function() {
     let files = this.files;
     for (let i = 0; i < files.length; i++) {
@@ -129,10 +109,6 @@ function initMap() {
     }
   });
 
-  /**
-   * Load GeoJSON file
-   * @param {File} file - GeoJSON file
-   */
   function loadGeoJSONFile(file) {
     let reader = new FileReader();
     reader.onload = function(e) {
@@ -162,7 +138,7 @@ function initMap() {
               checkbox.addEventListener('change', function() {
                 propertyStatus[property] = this.checked;
                 allLayers.forEach(function(obj) {
-                  updatePopupContent(obj.feature, obj.layer);                 // notice update Pop up!
+                  updatePopupContent(obj.feature, obj.layer);
                 });
               });
 
@@ -186,19 +162,15 @@ function initMap() {
             }
           }
 
-          console.log('Popup content:', popupContent);
           markers[file.name].addLayer(layer);
           layer.bindPopup(popupContent);
-          console.log('Popup content after update:', popupContent);
         }
       });
       map.addLayer(markers[file.name]);
 
-      // Enable the search box
       searchBox.disabled = false;
       searchBox.style.backgroundColor = '#fff';
 
-      // add a layer control checkbox for this file
       let layerControlPanel = document.getElementById('layer-control-panel');
 
       let checkboxLabel = document.createElement('label');
@@ -228,10 +200,6 @@ function initMap() {
     reader.readAsText(file);
   }
 
-  /**
-   * Event listener for search box input
-   * Filters features based on search input
-   */
   searchBox.addEventListener('input', function() {
     let searchString = this.value.toLowerCase();
     let matchedFeatures = {};
@@ -272,7 +240,7 @@ function initMap() {
                   checkbox.addEventListener('change', function() {
                     propertyStatus[property] = this.checked;
                     allLayers.forEach(function(obj) {
-                      updatePopupContent(obj.feature, obj.layer);                   // notice update Pop up!
+                      updatePopupContent(obj.feature, obj.layer);
                     });
                   });
 
@@ -297,10 +265,8 @@ function initMap() {
               }
             }
 
-            console.log('Popup content:', popupContent);
             markers[fileName].addLayer(layer);
             layer.bindPopup(popupContent);
-            console.log('Popup content after update:', popupContent);
           }
         });
         map.addLayer(markers[fileName]);
@@ -308,10 +274,6 @@ function initMap() {
     }
   });
 
-  /**
-   * Event listener for remove GeoJSON button
-   * Clears the map and removes GeoJSON files
-   */
   document.getElementById('remove-geojson').addEventListener('click', function() {
     for (let fileName in markers) {
       if (markers[fileName]) {
@@ -319,38 +281,29 @@ function initMap() {
         markers[fileName] = null;
         delete geoJsonData[fileName];
 
-        // remove the corresponding layer control checkbox
         let checkbox = document.getElementById('layer-control-' + fileName);
         checkbox.parentNode.removeChild(checkbox);
         let label = document.querySelector('label[for="layer-control-' + fileName + '"]');
         label.parentNode.removeChild(label);
-        // reset the property panel as well when removing the GeoJSON
+
         let propertySelectPanel = document.getElementById('property-checkboxes');
         propertySelectPanel.innerHTML = '';
       }
     }
 
-    // Disable the search box
     searchBox.disabled = true;
     searchBox.style.backgroundColor = '#ddd';
 
     location.reload();
   });
 
-  // Add layer control
   let layerControl = L.control.layers(baseMaps, {}).addTo(map);
 
-  // Set default layer as OpenStreetMap
   map.addLayer(openStreetMapLayer);
 }
 
-// Execute the initMap function when the window loads
 window.onload = initMap;
 
-/**
- * Event listener for the hint button
- * Toggles the visibility of the hint section
- */
 let hintButton = document.getElementById('hint-button');
 let hintSection = document.getElementById('hint-section');
 

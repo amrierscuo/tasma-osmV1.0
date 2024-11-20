@@ -1,29 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Leaflet Map - Sardegna</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <style>
-        #map {
-            height: 100vh;
-            width: 100%;
-        }
-    </style>
-</head>
-<body><!DOCTYPE html>
-<html>
-<head>
-    <title>Mappa Sardegna</title>
+    <title>Mappa Sardegna - Layer GeoJSON</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #map {
-            height: 600px;
-            width: 100%;
-        }
+        #map { height: 600px; width: 100%; }
     </style>
 </head>
 <body>
@@ -32,70 +15,31 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
     <script>
-        // Crea la mappa centrata sulla Sardegna
-        var map = L.map('map').setView([40.1, 9.0], 7);
+        var map = L.map('map').setView([40.1, 9.0], 7); // Crea la mappa
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
 
-        // Aggiunge un layer base (OSM)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
-
-        // URL dei file GeoJSON
-        var atlanteUrl = './data/atlante_toponomastico.geojson';
-        var areeMilitariUrl = './data/areeSpecialiAreeMilitari_WGS84.geojson';
-
-        // Layer per l'atlante
-        var atlanteLayer = new L.GeoJSON.AJAX(atlanteUrl, {
-            pointToLayer: function (feature, latlng) {
-                return L.circleMarker(latlng, {
-                    radius: 6,
-                    fillColor: "#0074D9",
-                    color: "#0074D9",
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                });
-            },
-            onEachFeature: function (feature, layer) {
-                if (feature.properties) {
-                    layer.bindPopup(
-                        "<b>Località:</b> " + feature.properties.ITA + 
-                        "<br><b>Subregione:</b> " + feature.properties.SUBREGIONE + 
-                        "<br><b>Etimologia:</b> " + feature.properties.ETIMOLOGIA
-                    );
-                }
-            }
-        });
-
-        // Layer per le aree militari
-        var areeMilitariLayer = new L.GeoJSON.AJAX(areeMilitariUrl, {
-            style: function (feature) {
-                return {
-                    color: "#FF4136",
-                    weight: 2,
-                    fillOpacity: 0.5
-                };
-            },
-            onEachFeature: function (feature, layer) {
-                if (feature.properties && feature.properties.descr) {
-                    layer.bindPopup("<b>Descrizione:</b> " + feature.properties.descr);
-                }
-            }
-        });
-
-        // Layer control per alternare i layer
-        var baseLayers = {
-            "Mappa Base": atlanteLayer,
-            "Aree Militari": areeMilitariLayer
+        var urls = {
+            atlante: './data/atlante_toponomastico.geojson',
+            areeMilitari: './data/areeSpecialiAreeMilitari_WGS84.geojson',
+            comuni: './data/DBGT_10K_22_V04_09_COMUNE_4326.geojson'
         };
 
-        // Aggiunge il controllo dei layer
-        L.control.layers(null, baseLayers).addTo(map);
+        function createLayer(url, style, popup) {
+            return new L.GeoJSON.AJAX(url, { style: style, onEachFeature: popup });
+        }
 
-        // Carica entrambi i layer di default
-        atlanteLayer.addTo(map);
-        areeMilitariLayer.addTo(map);
+        var layers = {
+            "Atlante Toponomastico": createLayer(urls.atlante, null, function (f, l) {
+                if (f.properties) l.bindPopup("<b>Località:</b> " + f.properties.ITA + "<br><b>Subregione:</b> " + f.properties.SUBREGIONE);
+            }),
+            "Aree Militari": createLayer(urls.areeMilitari, function () { return { color: "#FF4136", weight: 2, fillOpacity: 0.5 }; }, 
+                function (f, l) { if (f.properties) l.bindPopup("<b>Descrizione:</b> " + f.properties.descr); }),
+            "Comuni": createLayer(urls.comuni, function () { return { color: "#2ECC40", weight: 2, fillColor: "#A3E4D7", fillOpacity: 0.5 }; }, 
+                function (f, l) { if (f.properties) l.bindPopup("<b>Nome:</b> " + f.properties.Nome + "<br><b>ISTAT:</b> " + f.properties.CIstat); })
+        };
+
+        L.control.layers(null, layers).addTo(map);
+        Object.values(layers).forEach(layer => layer.addTo(map)); // Aggiunge tutti i layer
     </script>
 </body>
 </html>

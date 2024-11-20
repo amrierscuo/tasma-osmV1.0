@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet Map - Sardegna</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+    </style>
+</head>
+<body><!DOCTYPE html>
+<html>
+<head>
+    <title>Mappa Sardegna</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mappa Sardegna - Layer GeoJSON</h1>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+    <script>
+        // Crea la mappa centrata sulla Sardegna
+        var map = L.map('map').setView([40.1, 9.0], 7);
+
+        // Aggiunge un layer base (OSM)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // URL dei file GeoJSON
+        var atlanteUrl = './atlante_toponomastico.geojson';
+        var areeMilitariUrl = './areeSpecialiAreeMilitari_WGS84.geojson';
+
+        // Layer per l'atlante
+        var atlanteLayer = new L.GeoJSON.AJAX(atlanteUrl, {
+            pointToLayer: function (feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 6,
+                    fillColor: "#0074D9",
+                    color: "#0074D9",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties) {
+                    layer.bindPopup(
+                        "<b>Località:</b> " + feature.properties.ITA + 
+                        "<br><b>Subregione:</b> " + feature.properties.SUBREGIONE + 
+                        "<br><b>Etimologia:</b> " + feature.properties.ETIMOLOGIA
+                    );
+                }
+            }
+        });
+
+        // Layer per le aree militari
+        var areeMilitariLayer = new L.GeoJSON.AJAX(areeMilitariUrl, {
+            style: function (feature) {
+                return {
+                    color: "#FF4136",
+                    weight: 2,
+                    fillOpacity: 0.5
+                };
+            },
+            onEachFeature: function (feature, layer) {
+                if (feature.properties && feature.properties.descr) {
+                    layer.bindPopup("<b>Descrizione:</b> " + feature.properties.descr);
+                }
+            }
+        });
+
+        // Layer control per alternare i layer
+        var baseLayers = {
+            "Mappa Base": atlanteLayer,
+            "Aree Militari": areeMilitariLayer
+        };
+
+        // Aggiunge il controllo dei layer
+        L.control.layers(null, baseLayers).addTo(map);
+
+        // Carica entrambi i layer di default
+        atlanteLayer.addTo(map);
+        areeMilitariLayer.addTo(map);
+    </script>
+</body>
+</html>

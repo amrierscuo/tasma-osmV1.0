@@ -1,1 +1,1 @@
-https://amrierscuo.github.io/tasma-osmV1.0/Dash.html
+https://amrierscuo.github.io/tasma-osmV1.0/Dashboard.html

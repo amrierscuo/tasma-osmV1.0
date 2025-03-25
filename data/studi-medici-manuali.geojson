@@ -1,0 +1,17 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "titolo": "Studio Radiologico Spada - Giagheddu",
+          "descrizione": "Link: https://www.studiospadagiagheddu.it/#\nStudio Radiologico Spada-Giagheddu è un centro specializzato in Risonanza Magnetica ad alto campo total body, TAC multistrato total body, Ecografia, RX digitale e Polisonnografia (Medicina del sonno), visite ortopediche, fisiatriche e chirurgia.\n\nPrestazioni disponibili:\n- Ecografie varie (da 70 €)\n- Risonanza magnetica (150 €)\n- Risonanza magnetica aperta (da 150 €)\n- Risonanza magnetica nucleare (150 €)\n- Visita radiologica (150 €)\n\n*Qualora il paziente dovesse eseguire più risonanze, verrà applicato uno sconto in base al numero degli esami eseguiti.*"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [9.121289056566312, 39.22991266640242]
+        }
+      }
+    ]
+  }
+  

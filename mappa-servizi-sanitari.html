@@ -1,66 +1,235 @@
 <!DOCTYPE html>
 <html>
+<!DOCTYPE html>
+<html>
 <head>
     <title>Mappa dei Servizi Sanitari in Sardegna</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        #map { height: 600px; width: 100%; }
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            background-color: #f5f5f5;
+            color: #222;
+        }
+
+        h1 {
+            text-align: center;
+            background: #0074D9;
+            color: white;
+            margin: 0;
+            padding: 20px 10px;
+            font-size: 22px;
+            letter-spacing: 0.5px;
+        }
+
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+
         .legend {
             background: white;
             line-height: 1.5em;
             color: #333;
-            padding: 10px;
-            margin-top: 10px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-            max-width: 300px;
+            padding: 12px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            max-width: 280px;
             font-size: 14px;
+            flex: 1;
         }
+
         .legend-title {
             font-weight: bold;
             margin-bottom: 5px;
         }
+
         .legend-item {
             display: flex;
             align-items: center;
             margin-bottom: 4px;
         }
+
         .legend-color {
             width: 16px;
             height: 16px;
             margin-right: 8px;
             border: 1px solid #333;
         }
+
         .hospital { background-color: #F012BE; }
         .pharmacy { background-color: #2ECC40; }
         .doctors { background-color: #7FDBFF; }
         .clinic { background-color: #FF851B; }
+        .manual { background-color: #B10DC9; }
     </style>
 </head>
+
 <body>
+
     <h1>Mappa interattiva dei servizi sanitari territoriali in Sardegna</h1>
     <div id="map"></div>
 
-    <div class="legend">
-        <div class="legend-title">Legenda – Servizi Sanitari OSM</div>
-        <div class="legend-item"><div class="legend-color hospital"></div>Ospedali</div>
-        <div class="legend-item"><div class="legend-color pharmacy"></div>Farmacie</div>
-        <div class="legend-item"><div class="legend-color doctors"></div>Studi medici</div>
-        <div class="legend-item"><div class="legend-color clinic"></div>Cliniche</div>
+    <div style="display: flex; justify-content: center; gap: 30px; padding: 20px; flex-wrap: wrap;">
+		<!-- Legenda -->
+		<div class="legend">
+			<div class="legend-title">Legenda – Servizi Sanitari OSM</div>
+			<div class="legend-item"><div class="legend-color hospital"></div>Ospedali</div>
+			<div class="legend-item"><div class="legend-color pharmacy"></div>Farmacie</div>
+			<div class="legend-item"><div class="legend-color doctors"></div>Studi medici</div>
+			<div class="legend-item"><div class="legend-color clinic"></div>Cliniche</div>
+			<div class="legend-item" style="font-size: 12px; color: #777; margin-top: 6px; display: block;">
+				Fonte OSM: <a href="https://overpass-turbo.eu/?Q=%5Bout%3Ajson%5D%5Btimeout%3A60%5D%3B%0A%28%0A%20%20node%5B%22amenity%22%3D%22hospital%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20way%5B%22amenity%22%3D%22hospital%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20relation%5B%22amenity%22%3D%22hospital%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%0A%20%20node%5B%22amenity%22%3D%22pharmacy%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20way%5B%22amenity%22%3D%22pharmacy%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20relation%5B%22amenity%22%3D%22pharmacy%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%0A%20%20node%5B%22amenity%22%3D%22doctors%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20way%5B%22amenity%22%3D%22doctors%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20relation%5B%22amenity%22%3D%22doctors%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%0A%20%20node%5B%22amenity%22%3D%22clinic%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20way%5B%22amenity%22%3D%22clinic%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20relation%5B%22amenity%22%3D%22clinic%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%0A%20%20node%5B%22emergency%22%3D%22yes%22%5D%5B%22amenity%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20way%5B%22emergency%22%3D%22yes%22%5D%5B%22amenity%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%20%20relation%5B%22emergency%22%3D%22yes%22%5D%5B%22amenity%22%5D(38.876952%2C8.168968%2C41.313385%2C10.102976)%3B%0A%29%3B%0Aout%20body%3B%0A%3E%3B%0Aout%20skel%20qt%3B" target="_blank">query Overpass Turbo</a>
+			</div>
+
+			<hr>
+
+
+			<div class="legend-title">Legenda – Dati manuali</div>
+			<div class="legend-item">
+				<div class="legend-color manual"></div>
+				Studi radiologici (selezione manuale)
+			</div>
+			<div class="legend-item" style="font-size: 12px; color: #555; line-height: 1.4; display: block; margin-left: 24px;">
+				Sono stati selezionati manualmente <strong id="conteggio-manuali-num">n</strong> studi radiologici.
+				Al momento sono inclusi solo centri di diagnostica per immagini (radiologia).
+			</div>
+
+			<hr>
+
+			<div class="legend-title">Legenda – Distretti ASL</div>
+			<div class="legend-item" style="font-size: 12px; color: #555; line-height: 1.4; display: block;">
+				I confini dei distretti ASL derivano da una dissolvenza dei limiti comunali, aggregati per <strong>distretto</strong>. Ogni poligono rappresenta una zona sanitaria di competenza amministrativa.
+			</div>
+			<div class="legend-item" style="font-size: 12px; color: #777; margin-top: 6px; display: block;">
+				Fonte ASL: <a href="https://webgis2.regione.sardegna.it/download/" target="_blank">Geoportale Regione Sardegna</a>
+			</div>
+		</div>
+
+
+		<!-- Tabella dati istituzionali -->
+		<div style="max-width: 600px; background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-size: 14px;">
+			<p><strong>📊 Dati ufficiali rilevanti</strong> (fonte: Regione, da <em>L’Unione Sarda – 24 marzo 2025</em>)</p>
+			<p>I dati riportati si basano sul portale dell’Assessorato alla Sanità della Regione Sardegna e offrono un monitoraggio ufficiale delle liste d’attesa per visite ed esami specialistici.</p>
+			<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+				<thead style="background: #0074D9; color: white;">
+					<tr>
+						<th style="padding: 6px; text-align: left;">Prestazione</th>
+						<th style="padding: 6px;">Gennaio 2025</th>
+						<th style="padding: 6px;">Ottobre 2024</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><td>Visita oncologica</td><td style="text-align:center">278</td><td style="text-align:center">41</td></tr>
+					<tr><td>Visita endocrinologica</td><td style="text-align:center">156</td><td style="text-align:center">145</td></tr>
+					<tr><td>Chirurgia vascolare</td><td style="text-align:center">151</td><td style="text-align:center">116</td></tr>
+					<tr><td>Oculistica</td><td style="text-align:center">140</td><td style="text-align:center">122</td></tr>
+					<tr><td>Risonanza addome inf.</td><td style="text-align:center">541</td><td style="text-align:center">427</td></tr>
+					<tr><td>Risonanza colonna</td><td style="text-align:center">184</td><td style="text-align:center">106</td></tr>
+					<tr><td>Mammografia</td><td style="text-align:center">214</td><td style="text-align:center">168</td></tr>
+					<tr><td>Risonanza cervello</td><td style="text-align:center">295</td><td style="text-align:center">306</td></tr>
+					<tr><td>Colonscopia</td><td style="text-align:center">268</td><td style="text-align:center">374</td></tr>
+				</tbody>
+			</table>
+			<p style="margin-top: 10px;"><strong>📌 Nota:</strong> Per una risonanza si può attendere fino a <strong>541 giorni</strong>, quasi 18 mesi.</p>
+			<p style="font-size: 12px; color: #777; margin-top: 8px;">
+				Fonte: <a href="https://www.unionesarda.it/salute/lista-dattesa-in-sardegna-2025" target="_blank">unionesarda.it</a> – dati da Assessorato Sanità Sardegna
+			</p>
+		</div>
+
+		<!-- Grafico a barre - Dati prestazioni private (stima 2025) -->
+		<div style="max-width: 400px; background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); flex: 1; min-width: 300px;">
+			<p><strong>💶 Tariffe medie prestazioni private</strong> (Sardegna 2025)</p>
+			<canvas id="tariffePrivateChart" height="220"></canvas>
+			<p style="font-size: 12px; color: #666; margin-top: 10px;">
+				Valori indicativi basati su <em>studi radiologici e centri privati</em> attivi in Sardegna.
+			</p>
+			<p style="font-size: 12px; color: #777;">
+				Fonti: <a href="https://www.studiospadagiagheddu.it/" target="_blank">Studio Spada-Giagheddu</a>,
+				<a href="https://www.risonanzamagneticacorona.it/" target="_blank">Studio Corona</a>,
+				<a href="https://www.radiologiaderiu.com/" target="_blank">Deriu</a>
+			</p>
+		</div>
+
+
+    </div> <!-- Chiude il div principale flex -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx2 = document.getElementById('tariffePrivateChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: ['Ecografia', 'RMN encefalo', 'TAC torace', 'Visita specialistica', 'Analisi sangue base', 'ECG'],
+            datasets: [{
+                label: '€ (prezzo medio)',
+                data: [75, 230, 120, 100, 40, 30],
+                backgroundColor: '#0074D9',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: { display: true, text: 'Costo in Euro' }
+                },
+                x: {
+                    ticks: { maxRotation: 60, minRotation: 30 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+
+
     </div>
+
+
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
 
     <script>
     var map = L.map('map').setView([39.2, 9.1], 8);
+    
+    // Controllo per centrare sulla posizione
+    var centerControl = L.control({
+        position: 'topleft'
+    });
+
+    centerControl.onAdd = function(map) {
+        this._div = L.DomUtil.create('div', 'leaflet-control leaflet-bar');
+        this._div.innerHTML = 
+            '<a href="#" style="padding: 6px 12px; display: block;" title="Centra mappa">📍pin</a>';
+        
+        L.DomEvent.on(this._div, 'click', function(e) {
+            e.preventDefault();
+            map.setView([39.229269, 9.121672], 15);
+        });
+        
+        return this._div;
+    };
+
+    centerControl.addTo(map);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
         attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    // NUOVO MARKER AGGIUNTO QUI
+    var nostroCentroMarker = L.marker([39.229269, 9.121672], {
+        title: 'Nostro Centro',
+        alt: 'Posizione del nostro centro principale'
+    }).bindPopup("<b>Nostro Centro</b><br>Posizione di riferimento principale").addTo(map);
 
     // Layer: Confini distretti ASL
     var confiniASLLayer = new L.GeoJSON.AJAX('./data/distrettiAsl.geojson', {
@@ -76,7 +245,6 @@
             layer.bindPopup(popupContent);
         }
     });
-
     // Layer: Servizi sanitari OSM
     var serviziSanitariLayer = new L.GeoJSON.AJAX('./data/servizi-sanitari-sardegna.geojson', {
         pointToLayer: function (feature, latlng) {
@@ -142,7 +310,7 @@
         pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng, {
                 radius: 7,
-                fillColor: "#B10DC9",  // viola
+                fillColor: "#B10DC9",
                 color: "#5A005A",
                 weight: 1,
                 opacity: 1,
@@ -156,6 +324,14 @@
             layer.bindPopup(popup);
         }
     });
+
+    // Conteggio dinamico dei punti manuali
+	studiMediciLayer.on('data:loaded', function () {
+		const count = studiMediciLayer.getLayers().length;
+		const target = document.getElementById('conteggio-manuali-num');
+		if (target) target.innerHTML = count;
+	});
+
 
     var overlayMaps = {
         "Confini territoriali ASL": confiniASLLayer,

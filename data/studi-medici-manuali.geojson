@@ -1,17 +1,72 @@
 {
-    "type": "FeatureCollection",
-    "features": [
-      {
-        "type": "Feature",
-        "properties": {
-          "titolo": "Studio Radiologico Spada - Giagheddu",
-          "descrizione": "Link: https://www.studiospadagiagheddu.it/#\nStudio Radiologico Spada-Giagheddu è un centro specializzato in Risonanza Magnetica ad alto campo total body, TAC multistrato total body, Ecografia, RX digitale e Polisonnografia (Medicina del sonno), visite ortopediche, fisiatriche e chirurgia.\n\nPrestazioni disponibili:\n- Ecografie varie (da 70 €)\n- Risonanza magnetica (150 €)\n- Risonanza magnetica aperta (da 150 €)\n- Risonanza magnetica nucleare (150 €)\n- Visita radiologica (150 €)\n\n*Qualora il paziente dovesse eseguire più risonanze, verrà applicato uno sconto in base al numero degli esami eseguiti.*"
-        },
-        "geometry": {
-          "type": "Point",
-          "coordinates": [9.121289056566312, 39.22991266640242]
-        }
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "titolo": "Studio Radiologico Spada - Giagheddu",
+        "descrizione": "Link: https://www.studiospadagiagheddu.it/#\nStudio Radiologico Spada-Giagheddu è un centro specializzato in Risonanza Magnetica ad alto campo total body, TAC multistrato total body, Ecografia, RX digitale e Polisonnografia (Medicina del sonno), visite ortopediche, fisiatriche e chirurgia.\n\nPrestazioni disponibili:\n- Ecografie varie (da 70 €)\n- Risonanza magnetica (150 €)\n- Risonanza magnetica aperta (da 150 €)\n- Risonanza magnetica nucleare (150 €)\n- Visita radiologica (150 €)\n\n*Qualora il paziente dovesse eseguire più risonanze, verrà applicato uno sconto in base al numero degli esami eseguiti.*"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.121289056566312, 39.22991266640242]
       }
-    ]
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "titolo": "Studio Radiologico Corona",
+        "descrizione": "Link: https://www.risonanzamagneticacorona.it/, Studio di diagnostica per immagini a Cagliari, specializzato in risonanza magnetica nucleare, radiografia, ecografia e TAC, Prestazioni disponibili: Risonanza magnetica (da €120), Ecografia (da €60), Radiografia (da €35), MOC (da €50), EcoColorDoppler (da €70), TAC (da €85)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.1215, 39.2220]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "titolo": "Studio Radiologico C.R.E.A.",
+"descrizione": "Link: https://www.studioradiologiacrea.com/, Studio radiologico ed ecografico ad Assemini, offre servizi diagnostici con macchinari all'avanguardia e personale specializzato. Diagnostica per immagini: Ortopantomografia (OPT), TAC Volumetrica Cone Beam (CBVT), Radiografia digitale, Ecografia, Ecocolordoppler, Mammografia, Ecocardiografia. Visite mediche specialistiche: Ortopedia, Endocrinologia, Senologia, Cardiologia, Chirurgia Vascolare."
+
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [9.0093, 39.2895]
+      }
+    },
+	{
+  "type": "Feature",
+  "properties": {
+    "titolo": "Studio Radiologico CDM Centro Diagnostico Maxia",
+    "descrizione": "Lo Studio Radiologico C.D.M., (Doppia sede?)situato a Quartu Sant'Elena in via Olanda 5, è specializzato in radiologia ed ecografia, opera da anni offrendo servizi convenzionati con il SSN e riceve visite su appuntamento. Servizi: visite specialistiche non convenzionate in ginecologia, angiologia, radiologia, radiologia odontoiatrica. Esami radiografici digitali su prenotazione dal lunedì al venerdì, con ritiro il mercoledì e il venerdì sera. Esami ecografici: ecografie internistiche, mammarie, ostetrico-ginecologiche, muscolo-tendinee, ecocolordoppler."
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [9.122967483329232, 39.220966497270965]
   }
-  
+},
+{
+  "type": "Feature",
+  "properties": {
+    "titolo": "Studio di Radiologia Dr. Angelo e Daniele Serra",
+    "descrizione": "Lo Studio Radiologico Angelo e Daniele Serra, operativo a Cagliari fin dal 1972, è convenzionato con il Servizio Sanitario Nazionale. Per le radiografie non è necessario prenotare ma occorre presentarsi entro le ore 18. Ha affiancato alla radiologia tradizionale le moderne tecniche digitali, come l'ecografia colordoppler. Offre un servizio completo di diagnostica per immagini grazie a personale medico e tecnico altamente qualificato e a strumentazione aggiornata."
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [9.119572612824259, 39.213256167512085]
+  }
+},
+{
+  "type": "Feature",
+  "properties": {
+    "titolo": "Radiologia Ecografia Palabanda",
+    "descrizione": "Link: http://www.palabanda8.it/, Ambulatorio medico di diagnostica per immagini accreditato con il SSN. Servizi disponibili: radiologia tradizionale, ecografia."
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [9.114763, 39.214719]
+  }
+}
+  ]
+}

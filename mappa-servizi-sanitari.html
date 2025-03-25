@@ -7,41 +7,146 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         #map { height: 600px; width: 100%; }
+        .legend {
+            background: white;
+            line-height: 1.5em;
+            color: #333;
+            padding: 10px;
+            margin-top: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            max-width: 300px;
+            font-size: 14px;
+        }
+        .legend-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            border: 1px solid #333;
+        }
+        .hospital { background-color: #F012BE; }
+        .pharmacy { background-color: #2ECC40; }
+        .doctors { background-color: #7FDBFF; }
+        .clinic { background-color: #FF851B; }
     </style>
 </head>
 <body>
     <h1>Mappa interattiva dei servizi sanitari territoriali in Sardegna</h1>
     <div id="map"></div>
+
+    <div class="legend">
+        <div class="legend-title">Legenda – Servizi Sanitari OSM</div>
+        <div class="legend-item"><div class="legend-color hospital"></div>Ospedali</div>
+        <div class="legend-item"><div class="legend-color pharmacy"></div>Farmacie</div>
+        <div class="legend-item"><div class="legend-color doctors"></div>Studi medici</div>
+        <div class="legend-item"><div class="legend-color clinic"></div>Cliniche</div>
+    </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+
     <script>
-        var map = L.map('map').setView([39.2, 9.1], 8);
+    var map = L.map('map').setView([39.2, 9.1], 8);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 18,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-        // Layer: Confini distretti ASL (opzionale)
-        var confiniASLLayer = new L.GeoJSON.AJAX('./data/distrettiAsl.geojson', {
-            style: function () {
-                return { color: "#0074D9", weight: 2, fillOpacity: 0.3 };
-            },
-            onEachFeature: function (feature, layer) {
-                let props = feature.properties;
-                let popupContent = "<strong>Distretto ASL</strong><br>";
-                for (let key in props) {
-                    popupContent += `<b>${key}:</b> ${props[key]}<br>`;
-                }
-                layer.bindPopup(popupContent);
+    // Layer: Confini distretti ASL
+    var confiniASLLayer = new L.GeoJSON.AJAX('./data/distrettiAsl.geojson', {
+        style: function () {
+            return { color: "#0074D9", weight: 2, fillOpacity: 0.3 };
+        },
+        onEachFeature: function (feature, layer) {
+            let props = feature.properties;
+            let popupContent = "<strong>Distretto ASL</strong><br>";
+            for (let key in props) {
+                popupContent += `<b>${key}:</b> ${props[key]}<br>`;
             }
-        });
+            layer.bindPopup(popupContent);
+        }
+    });
 
-        var overlayMaps = {
-            "Confini territoriali ASL": confiniASLLayer
-        };
+    // Layer: Servizi sanitari con punti + poligoni
+    var serviziSanitariLayer = new L.GeoJSON.AJAX('./data/servizi-sanitari-sardegna.geojson', {
+        pointToLayer: function (feature, latlng) {
+            const tipo = feature.properties.amenity;
+            let fillColor = "#AAAAAA"; // default
 
-        L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+            if (tipo === "hospital") fillColor = "#F012BE";         // rosa
+            else if (tipo === "pharmacy") fillColor = "#2ECC40";     // verde acqua
+            else if (tipo === "doctors") fillColor = "#7FDBFF";      // azzurro
+            else if (tipo === "clinic") fillColor = "#FF851B";       // arancio
+
+            return L.circleMarker(latlng, {
+                radius: 6,
+                fillColor: fillColor,
+                color: "#333",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.85
+            });
+        },
+        style: function (feature) {
+            const tipo = feature.properties.amenity;
+            if (
+                feature.geometry.type === "Polygon" ||
+                feature.geometry.type === "MultiPolygon"
+            ) {
+                if (tipo === "hospital") {
+                    return {
+                        color: "#F012BE",
+                        fillColor: "#F012BE",
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.4
+                    };
+                } else {
+                    return {
+                        color: "#666",
+                        fillColor: "#CCCCCC",
+                        weight: 1,
+                        opacity: 0.6,
+                        fillOpacity: 0.3
+                    };
+                }
+            }
+        },
+        onEachFeature: function (feature, layer) {
+            let props = feature.properties;
+            let popup = "<strong>Servizio sanitario</strong><br>";
+            if (props["name:it"] || props.name) {
+                popup += "<b>Nome:</b> " + (props["name:it"] || props.name) + "<br>";
+            }
+            if (props.amenity) {
+                popup += "<b>Tipo:</b> " + props.amenity + "<br>";
+            }
+            if (props["healthcare:speciality"]) {
+                popup += "<b>Specialità:</b> " + props["healthcare:speciality"] + "<br>";
+            }
+            if (props.operator) {
+                popup += "<b>Gestore:</b> " + props.operator + "<br>";
+            }
+            layer.bindPopup(popup);
+        }
+    });
+
+    var overlayMaps = {
+        "Confini territoriali ASL": confiniASLLayer,
+        "Servizi sanitari OSM": serviziSanitariLayer
+    };
+
+    L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
     </script>
 </body>
 </html>

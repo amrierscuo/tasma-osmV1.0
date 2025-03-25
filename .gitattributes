@@ -1,2 +1,4 @@
+data/distrettiAsl.geojson !filter !diff !merge text
+
 data/*.geojson filter=lfs diff=lfs merge=lfs -text
 data/DBGT_10K_22_V04_09_COMUNE_4326.geojson filter=lfs diff=lfs merge=lfs -text

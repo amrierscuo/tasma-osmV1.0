@@ -77,16 +77,15 @@
         }
     });
 
-    // Layer: Servizi sanitari con punti + poligoni
+    // Layer: Servizi sanitari OSM
     var serviziSanitariLayer = new L.GeoJSON.AJAX('./data/servizi-sanitari-sardegna.geojson', {
         pointToLayer: function (feature, latlng) {
             const tipo = feature.properties.amenity;
-            let fillColor = "#AAAAAA"; // default
-
-            if (tipo === "hospital") fillColor = "#F012BE";         // rosa
-            else if (tipo === "pharmacy") fillColor = "#2ECC40";     // verde acqua
-            else if (tipo === "doctors") fillColor = "#7FDBFF";      // azzurro
-            else if (tipo === "clinic") fillColor = "#FF851B";       // arancio
+            let fillColor = "#AAAAAA";
+            if (tipo === "hospital") fillColor = "#F012BE";
+            else if (tipo === "pharmacy") fillColor = "#2ECC40";
+            else if (tipo === "doctors") fillColor = "#7FDBFF";
+            else if (tipo === "clinic") fillColor = "#FF851B";
 
             return L.circleMarker(latlng, {
                 radius: 6,
@@ -99,10 +98,7 @@
         },
         style: function (feature) {
             const tipo = feature.properties.amenity;
-            if (
-                feature.geometry.type === "Polygon" ||
-                feature.geometry.type === "MultiPolygon"
-            ) {
+            if (feature.geometry.type === "Polygon" || feature.geometry.type === "MultiPolygon") {
                 if (tipo === "hospital") {
                     return {
                         color: "#F012BE",
@@ -141,9 +137,30 @@
         }
     });
 
+    // Layer: Studi medici manuali
+    var studiMediciLayer = new L.GeoJSON.AJAX('./data/studi-medici-manuali.geojson', {
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                radius: 7,
+                fillColor: "#B10DC9",  // viola
+                color: "#5A005A",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.9
+            });
+        },
+        onEachFeature: function (feature, layer) {
+            const props = feature.properties;
+            let popup = `<strong>${props.titolo}</strong><br>`;
+            if (props.descrizione) popup += `<div>${props.descrizione}</div>`;
+            layer.bindPopup(popup);
+        }
+    });
+
     var overlayMaps = {
         "Confini territoriali ASL": confiniASLLayer,
-        "Servizi sanitari OSM": serviziSanitariLayer
+        "Servizi sanitari OSM": serviziSanitariLayer,
+        "Studi medici manuali": studiMediciLayer
     };
 
     L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);

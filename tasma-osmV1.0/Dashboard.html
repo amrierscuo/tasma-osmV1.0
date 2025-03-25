@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mappa Sardegna - Layer GeoJSON</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; width: 100%; }
+    </style>
+</head>
+<body>
+    <h1>Mappa Sardegna - Layer GeoJSON</h1>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-ajax/dist/leaflet.ajax.min.js"></script>
+    <script>
+        var map = L.map('map').setView([40.1, 9.0], 7); // Crea la mappa
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
+
+        var urls = {
+            atlante: './data/atlante_toponomastico.geojson',
+            areeMilitari: './data/areeSpecialiAreeMilitari_WGS84.geojson',
+            comuni: 'https://github.com/amrierscuo/tasma-osmV1.0/releases/download/v1.0.0/DBGT_10K_22_V04_09_COMUNE_4326.geojson'
+        };
+
+        function createLayer(url, style, popup) {
+            return new L.GeoJSON.AJAX(url, { style: style, onEachFeature: popup });
+        }
+
+        var layers = {
+            "Atlante Toponomastico": createLayer(urls.atlante, null, function (f, l) {
+                if (f.properties) l.bindPopup("<b>Località:</b> " + f.properties.ITA + "<br><b>Subregione:</b> " + f.properties.SUBREGIONE);
+            }),
+            "Aree Militari": createLayer(urls.areeMilitari, function () { return { color: "#FF4136", weight: 2, fillOpacity: 0.5 }; }, 
+                function (f, l) { if (f.properties) l.bindPopup("<b>Descrizione:</b> " + f.properties.descr); }),
+            "Comuni": createLayer(urls.comuni, function () { return { color: "#2ECC40", weight: 2, fillColor: "#A3E4D7", fillOpacity: 0.5 }; }, 
+                function (f, l) { if (f.properties) l.bindPopup("<b>Nome:</b> " + f.properties.Nome + "<br><b>ISTAT:</b> " + f.properties.CIstat); })
+        };
+
+        L.control.layers(null, layers).addTo(map);
+        Object.values(layers).forEach(layer => layer.addTo(map)); // Aggiunge tutti i layer
+    </script>
+</body>
+</html>

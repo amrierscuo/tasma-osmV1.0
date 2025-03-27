@@ -67,6 +67,28 @@
     "type": "Point",
     "coordinates": [9.114763, 39.214719]
   }
+},
+{
+  "type": "Feature",
+  "properties": {
+    "titolo": "Studio medico radiologico Dott. Aldo Porru",
+    "descrizione": "Link: https://www.studioradiologicoporru.it/\nStudio sito in Via Filippo Figari 5, Cagliari. Specializzato anche in radiologia ed ecografia pediatrica. Accetta pazienti con e senza assicurazione sanitaria, inclusi bambini di qualsiasi età.\n\nPrestazioni:\n- Ecografia addome completo: 80 €\n- Ecocolordoppler arti inferiori: 100 €\n- Ecocolordoppler TSA: 50 €\n- Ecografia addome inferiore: 50 €\n- Ecografia addome superiore: 60 €\n- Ecografia aorta addominale: 50 €"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [9.126430912868637, 39.23238191100652]
+  }
+},
+{
+  "type": "Feature",
+  "properties": {
+    "titolo": "Servizio di Medico Competente – Medi.Lav. Srl",
+    "descrizione": "Link: https://www.medilavsrl.it/medico-competente/\nServizio attivo in tutta la Sardegna per aziende private e enti pubblici. Il team composto dai Medici Competenti Dr. Gianfranco Murgia e Dr. Mariano Laconi effettua:\n- Visite mediche del Medico Competente\n- Esami strumentali (ECG, Spirometrie, Audiometrie, ecc.)\n- Visite specialistiche\n- Drug test e test alcolimetrici\n- Prelievi biologici\nLe attività si svolgono anche tramite Unità Mobili in un’unica seduta per efficienza e risparmio."
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [9.12618980134123, 39.23204619518041]
+  }
 }
   ]
 }

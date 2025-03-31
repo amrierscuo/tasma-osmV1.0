@@ -70,14 +70,22 @@
 
 <body>
 <script>
-  const password = "0p3nM1ndn3t";
-  let tentativo = prompt("🔐 Inserisci la password per accedere:");
+  const passwordCorretta = "0p3nM1ndn3t";
 
-  if (tentativo !== password) {
-    document.body.innerHTML = "<h2 style='text-align:center; margin-top: 40px;'>⛔ Accesso negato. Password errata.</h2>";
-    throw new Error("Accesso bloccato");
+  // Verifica se utente ha già sbloccato l'accesso
+  if (localStorage.getItem("accessoConsentito") !== "true") {
+    const tentativo = prompt("🔐 Inserisci la password per accedere:");
+    if (tentativo === passwordCorretta) {
+      localStorage.setItem("accessoConsentito", "true");
+      // Reload per caricare normalmente
+      location.reload();
+    } else {
+      document.body.innerHTML = "<h2 style='text-align:center; margin-top: 40px;'>⛔ Accesso negato. Password errata.</h2>";
+      throw new Error("Accesso bloccato");
+    }
   }
 </script>
+
 
     <h1 style="display: flex; justify-content: center; align-items: center; gap: 10px; padding: 20px 10px; background: #0074D9; color: white; margin: 0; font-size: 22px; letter-spacing: 0.5px;">
     Mappa interattiva dei servizi sanitari territoriali in Sardegna

@@ -70,23 +70,25 @@
 
 <body>
 <script>
-  const passwordCorretta = "0p3nM1ndn3t";
+  const password = "0p3nM1ndn3t";
+  const accessoConsentito = sessionStorage.getItem("accessoConsentito");
 
-  // Verifica se utente ha già sbloccato l'accesso
-  if (localStorage.getItem("accessoConsentito") !== "true") {
+  if (!accessoConsentito) {
     const tentativo = prompt("🔐 Inserisci la password per accedere:");
-    if (tentativo === passwordCorretta) {
-      localStorage.setItem("accessoConsentito", "true");
-      // Reload per caricare normalmente
-      location.reload();
-    } else {
-      document.body.innerHTML = "<h2 style='text-align:center; margin-top: 40px;'>⛔ Accesso negato. Password errata.</h2>";
+    if (tentativo !== password) {
+      document.write(`
+        <div style="font-family: sans-serif; text-align: center; margin-top: 100px;">
+          <h2>⛔ Accesso negato</h2>
+          <p>Password errata o operazione annullata.</p>
+        </div>
+      `);
       throw new Error("Accesso bloccato");
+    } else {
+      sessionStorage.setItem("accessoConsentito", true);
     }
   }
 </script>
-
-
+<div id="contenuto">
     <h1 style="display: flex; justify-content: center; align-items: center; gap: 10px; padding: 20px 10px; background: #0074D9; color: white; margin: 0; font-size: 22px; letter-spacing: 0.5px;">
     Mappa interattiva dei servizi sanitari territoriali in Sardegna
     <img src="tasma-osm/img/icon-service1.png" alt="Icona servizi" style="height: 28px; margin-left: auto; border: 1px solid #ccc; border-radius: 4px; padding: 2px; background-color: white;">
@@ -362,5 +364,6 @@
 
     L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
     </script>
+</div>
 </body>
 </html>

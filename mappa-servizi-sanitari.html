@@ -14,7 +14,9 @@
             background-color: #f5f5f5;
             color: #222;
         }
-
+  #contenuto {
+    display: none;
+  }
         h1 {
             text-align: center;
             background: #0074D9;
@@ -87,7 +89,13 @@
       sessionStorage.setItem("accessoConsentito", true);
     }
   }
+
+  // Mostra il contenuto
+  window.onload = () => {
+    document.getElementById('contenuto').style.display = 'block';
+  };
 </script>
+
 <div id="contenuto">
     <h1 style="display: flex; justify-content: center; align-items: center; gap: 10px; padding: 20px 10px; background: #0074D9; color: white; margin: 0; font-size: 22px; letter-spacing: 0.5px;">
     Mappa interattiva dei servizi sanitari territoriali in Sardegna
